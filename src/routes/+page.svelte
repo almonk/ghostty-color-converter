@@ -1,24 +1,24 @@
-<script>
-	// @ts-nocheck
+<script lang="ts">
 	// @ts-ignore
 	import plist from 'plist/dist/plist.js';
 
-	let input = '';
+	let input: string | ArrayBuffer | null | undefined = '';
 	let output = '';
-	let files = [];
+	let files: [] = [];
 
 	$: {
 		try {
-			parseToGhosttyConfig(plist.parse(input));
+			if (files.length > 0) {
+				parseToGhosttyConfig(plist.parse(input));
+			}
 		} catch (e) {
-			console.log(e);
-			console.log('An error occurred while parsing the plist');
+			output = "Couldn't parse plist";
 		}
 	}
 
 	$: ghosttyOutputColors = output.split('\x1b');
 
-	function parseToGhosttyConfig(input) {
+	function parseToGhosttyConfig(input: string) {
 		// Find all keys beginning with "Ansi"
 		const ansiKeys = Object.keys(input).filter((key) => key.startsWith('Ansi'));
 
@@ -58,7 +58,7 @@
 		});
 	}
 
-	function parseItermColorToHexValue(input) {
+	function parseItermColorToHexValue(input: any) {
 		let r, g, b;
 
 		r = Math.trunc(input['Red Component'] * 255);
@@ -68,19 +68,19 @@
 		return rgbToHex(r, g, b);
 	}
 
-	function rgbToHex(r, g, b) {
+	function rgbToHex(r: number, g: number, b: number) {
 		return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
 	}
 
-	function componentToHex(c) {
+	function componentToHex(c: number) {
 		var hex = c.toString(16);
 		return hex.length == 1 ? '0' + hex : hex;
 	}
 
-	function readFile(file) {
+	function readFile(file: Blob) {
 		const reader = new FileReader();
 		reader.onload = (e) => {
-			input = e.target.result;
+			input = e.target?.result;
 		};
 		reader.readAsText(file);
 	}
@@ -93,7 +93,7 @@
 <div class="flex flex-col gap-y-2 mt-8">
 	<div class="flex gap-x-2 text-[16px]">
 		<div class="font-semibold">Step 1.</div>
-		<div class="text-neutral-700">Import an iTerm Color theme</div>
+		<div class="text-neutral-700">Choose an iTerm Color theme</div>
 	</div>
 	<div class="bg-neutral-100 p-4 rounded-2xl">
 		<input type="file" bind:files on:change={() => readFile(files[0])} />
