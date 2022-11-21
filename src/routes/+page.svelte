@@ -5,6 +5,7 @@
 	let input: string | ArrayBuffer | null | undefined = '';
 	let output = '';
 	let files: [] = [];
+	let ghosttyOutputColors: any[] = [];
 
 	$: {
 		try {
@@ -16,7 +17,7 @@
 		}
 	}
 
-	$: ghosttyOutputColors = output.split('\x1b');
+	$: ghosttyOutputColors = output.split('\n');
 
 	function parseToGhosttyConfig(input: string) {
 		// Find all keys beginning with "Ansi"
@@ -108,4 +109,15 @@
 	<div class="bg-neutral-100 p-4 rounded-2xl flex font-mono text-[13px] leading-5">
 		<textarea rows="16" readonly class="flex-auto bg-transparent">{output}</textarea>
 	</div>
+</div>
+
+<div class="flex gap-2 mt-4 mb-10">
+	{#each ghosttyOutputColors as color}
+		<sl-tooltip content={`${color}`}>
+			<div
+				class="w-4 h-4 border flex-shrink-0 border-black border-opacity-5 rounded-full"
+				style={`background-color: #${color.split('#')[1]}`}
+			/>
+		</sl-tooltip>
+	{/each}
 </div>
